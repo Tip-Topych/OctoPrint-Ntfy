@@ -56,31 +56,42 @@
         <legend>Тестирование</legend>
         <div class="control-group">
             <div class="controls">
-                <button id="send_test_ntfy" class="btn btn-primary">Отправить тестовое уведомление</button>
+                <button class="btn btn-primary" data-bind="click: sendTestNotification">Отправить тестовое уведомление</button>
             </div>
         </div>
     </fieldset>
 </form>
 
-<script>
+<script type="text/javascript">
     $(function() {
-        $("#send_test_ntfy").on("click", function(e) {
-            e.preventDefault(); // Предотвращаем стандартное поведение кнопки
-            OctoPrint.simpleApiCommand("ntfy", "send_test_notification", {})
-                .done(function() {
-                    new PNotify({
-                        title: 'Успех',
-                        text: 'Команда на отправку тестового уведомления отправлена.',
-                        type: 'success'
+        function NtfySettingsViewModel(parameters) {
+            var self = this;
+
+            self.settings = parameters[0];
+
+            self.sendTestNotification = function() {
+                OctoPrint.simpleApiCommand("ntfy", "send_test_notification", {})
+                    .done(function() {
+                        new PNotify({
+                            title: 'Успех',
+                            text: 'Команда на отправку тестового уведомления отправлена.',
+                            type: 'success'
+                        });
+                    })
+                    .fail(function() {
+                        new PNotify({
+                            title: 'Ошибка',
+                            text: 'Не удалось отправить команду. Проверьте лог octoprint.log.',
+                            type: 'error'
+                        });
                     });
-                })
-                .fail(function() {
-                    new PNotify({
-                        title: 'Ошибка',
-                        text: 'Не удалось отправить команду.',
-                        type: 'error'
-                    });
-                });
+            };
+        }
+
+        OCTOPRINT_VIEWMODELS.push({
+            construct: NtfySettingsViewModel,
+            dependencies: [ "settingsViewModel" ],
+            elements: [ "#settings_plugin_ntfy" ]
         });
     });
 </script>
