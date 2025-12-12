@@ -66,10 +66,12 @@
     $(function() {
         function NtfySettingsViewModel(parameters) {
             var self = this;
+            console.log("NtfySettingsViewModel constructing..."); // Отладка
 
             self.settings = parameters[0];
 
             self.sendTestNotification = function() {
+                console.log("Button clicked!"); // Отладка
                 OctoPrint.simpleApiCommand("ntfy", "send_test_notification", {})
                     .done(function() {
                         new PNotify({

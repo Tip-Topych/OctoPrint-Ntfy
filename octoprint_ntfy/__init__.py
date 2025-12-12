@@ -7,7 +7,7 @@ from octoprint.plugin import (
     SettingsPlugin,
     EventHandlerPlugin,
     TemplatePlugin,
-    SimpleApiPlugin  # Добавили SimpleApiPlugin
+    SimpleApiPlugin
 )
 import requests
 import eventlet
@@ -18,7 +18,7 @@ class NtfyPlugin(StartupPlugin,
                  SettingsPlugin,
                  EventHandlerPlugin,
                  TemplatePlugin,
-                 SimpleApiPlugin):  # Добавили SimpleApiPlugin
+                 SimpleApiPlugin):
 
     def on_after_startup(self):
         self._logger.info("Ntfy Plugin загружен!")
