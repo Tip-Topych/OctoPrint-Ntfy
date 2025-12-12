@@ -23,6 +23,9 @@ class NtfyPlugin(StartupPlugin,
     def on_after_startup(self):
         self._logger.info("Ntfy Plugin загружен!")
 
+    def is_template_autoescaped(self):
+        return True
+
     def get_settings_defaults(self):
         return dict(
             server_url="https://ntfy.sh",
