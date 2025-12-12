@@ -6,9 +6,9 @@ plugin_package = "octoprint_ntfy"
 plugin_name = "OctoPrint-Ntfy"
 plugin_version = "0.1.0"
 plugin_description = "Integration with self-hosted ntfy"
-plugin_author = "Your Name"
+plugin_author = "Tip-Topych"
 plugin_author_email = "your@email.com"
-plugin_url = "https://github.com/yourusername/OctoPrint-Ntfy"
+plugin_url = "https://github.com/Tip-Topych/OctoPrint-Ntfy"
 plugin_license = "AGPLv3"
 
 plugin_requires = ["requests", "eventlet"]

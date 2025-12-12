@@ -36,7 +36,7 @@ class NtfyPlugin(octoprint.plugin.StartupPlugin,
 
     def get_template_configs(self):
         return [
-            dict(type="settings", custom_bindings=False)
+            dict(type="settings", template="ntfy_settings.jinja2", custom_bindings=False)
         ]
 
     # --- Обработка событий ---
