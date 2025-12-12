@@ -4,7 +4,7 @@ from setuptools import setup
 plugin_identifier = "ntfy"
 plugin_package = "octoprint_ntfy"
 plugin_name = "OctoPrint-Ntfy"
-plugin_version = "0.1.1"
+plugin_version = "0.1.2"
 plugin_description = "Integration with self-hosted ntfy"
 plugin_author = "Tip-Topych"
 plugin_author_email = "your@email.com"
