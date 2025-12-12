@@ -125,7 +125,7 @@ class NtfyPlugin(StartupPlugin,
 __plugin_name__ = "Ntfy Notification"
 __plugin_version__ = "1.0.0"
 __plugin_description__ = "A plugin to send notifications to a ntfy server."
-__plugin_author__ = "Padla"
+__plugin_author__ = "Tip-Topych"
 __plugin_pythoncompat__ = ">=3,<4"
 
 def __plugin_load__():
