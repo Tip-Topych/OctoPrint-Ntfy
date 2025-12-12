@@ -2,16 +2,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import octoprint.plugin
+from octoprint.plugin import (
+    StartupPlugin,
+    SettingsPlugin,
+    EventHandlerPlugin,
+    TemplatePlugin,
+    SoftwareUpdatePlugin
+)
 import requests
 import eventlet
 from octoprint.events import Events
 
-# Убрали несуществующий SoftwareUpdatePlugin из наследования
-class NtfyPlugin(octoprint.plugin.StartupPlugin,
-                 octoprint.plugin.SettingsPlugin,
-                 octoprint.plugin.EventHandlerPlugin,
-                 octoprint.plugin.TemplatePlugin):
+
+class NtfyPlugin(StartupPlugin,
+                 SettingsPlugin,
+                 EventHandlerPlugin,
+                 TemplatePlugin,
+                 SoftwareUpdatePlugin):
 
     def on_after_startup(self):
         self._logger.info("Ntfy Plugin загружен!")
@@ -31,7 +38,6 @@ class NtfyPlugin(octoprint.plugin.StartupPlugin,
 
     def get_template_configs(self):
         return [
-            # Явно указываем имя файла шаблона
             dict(type="settings", template="ntfy_settings.jinja2", custom_bindings=False)
         ]
 
@@ -51,8 +57,65 @@ class NtfyPlugin(octoprint.plugin.StartupPlugin,
                 eventlet.spawn_n(self._send_ntfy_notification, message_title, message_body)
 
     def _send_ntfy_notification(self, title, message):
-        # ... (ваш код отправки, который был ранее) ...
-        pass
+        server_url = self._settings.get(["server_url"]).rstrip('/')
+        topic = self._settings.get(["topic"])
+        token = self._settings.get(["access_token"])
+        priority = self._settings.get(["priority"])
+        include_snapshot = self._settings.get_boolean(["include_snapshot"])
+
+        full_url = f"{server_url}/{topic}"
+
+        headers = {
+            "Title": title.encode('utf-8'),
+            "Priority": priority,
+            "Tags": "printer"
+        }
+
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+
+        image_data = None
+
+        if include_snapshot:
+            snapshot_url = self._settings.global_get(["webcam", "snapshot"])
+            if snapshot_url:
+                try:
+                    if not snapshot_url.startswith("http"):
+                        snapshot_url = f"http://127.0.0.1:8080/{snapshot_url.lstrip('/')}"
+
+                    r_img = requests.get(snapshot_url, timeout=5)
+                    if r_img.status_code == 200:
+                        image_data = r_img.content
+                except Exception as e:
+                    self._logger.error(f"Не удалось получить снимок: {e}")
+
+        try:
+            if image_data:
+                headers["Message"] = message.encode('utf-8')
+                headers["Title"] = title.encode('utf-8')
+                headers["Filename"] = "snapshot.jpg"
+                requests.put(full_url, data=image_data, headers=headers)
+                self._logger.info(f"Отправлено уведомление с фото в ntfy: {title}")
+            else:
+                headers["Title"] = title.encode('utf-8')
+                requests.post(full_url, data=message.encode('utf-8'), headers=headers)
+                self._logger.info(f"Отправлено текстовое уведомление в ntfy: {title}")
+        except Exception as e:
+            self._logger.error(f"Ошибка при отправке в ntfy: {e}")
+
+    # --- SoftwareUpdatePlugin implementation ---
+    def get_update_information(self):
+        return dict(
+            ntfy=dict(
+                displayName="Ntfy Plugin",
+                displayVersion=self._plugin_version,
+                type="github_release",
+                user="Padla",
+                repo="OctoPrint-Ntfy",
+                current=self._plugin_version,
+                pip="https://github.com/Padla/OctoPrint-Ntfy/archive/{target_version}.zip"
+            )
+        )
 
 __plugin_name__ = "Ntfy Notification"
 __plugin_pythoncompat__ = ">=3,<4"
@@ -62,5 +125,6 @@ def __plugin_load__():
     __plugin_implementation__ = NtfyPlugin()
 
     global __plugin_hooks__
-    # ОСТАВЛЯЕМ ПУСТЫМ, чтобы не вызывать ошибок обновлений
-    __plugin_hooks__ = {}
+    __plugin_hooks__ = {
+        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
+    }
