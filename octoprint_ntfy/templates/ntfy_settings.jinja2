@@ -51,4 +51,36 @@
             </div>
         </div>
     </fieldset>
+
+    <fieldset>
+        <legend>Тестирование</legend>
+        <div class="control-group">
+            <div class="controls">
+                <button id="send_test_ntfy" class="btn btn-primary">Отправить тестовое уведомление</button>
+            </div>
+        </div>
+    </fieldset>
 </form>
+
+<script>
+    $(function() {
+        $("#send_test_ntfy").on("click", function(e) {
+            e.preventDefault(); // Предотвращаем стандартное поведение кнопки
+            OctoPrint.simpleApiCommand("ntfy", "send_test_notification", {})
+                .done(function() {
+                    new PNotify({
+                        title: 'Успех',
+                        text: 'Команда на отправку тестового уведомления отправлена.',
+                        type: 'success'
+                    });
+                })
+                .fail(function() {
+                    new PNotify({
+                        title: 'Ошибка',
+                        text: 'Не удалось отправить команду.',
+                        type: 'error'
+                    });
+                });
+        });
+    });
+</script>

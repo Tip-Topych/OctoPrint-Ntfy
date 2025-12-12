@@ -6,7 +6,8 @@ from octoprint.plugin import (
     StartupPlugin,
     SettingsPlugin,
     EventHandlerPlugin,
-    TemplatePlugin
+    TemplatePlugin,
+    SimpleApiPlugin  # Добавили SimpleApiPlugin
 )
 import requests
 import eventlet
@@ -16,7 +17,8 @@ from octoprint.events import Events
 class NtfyPlugin(StartupPlugin,
                  SettingsPlugin,
                  EventHandlerPlugin,
-                 TemplatePlugin):
+                 TemplatePlugin,
+                 SimpleApiPlugin):  # Добавили SimpleApiPlugin
 
     def on_after_startup(self):
         self._logger.info("Ntfy Plugin загружен!")
@@ -53,6 +55,11 @@ class NtfyPlugin(StartupPlugin,
                 file_name = payload.get("name", "Unknown file")
                 message_body = f"Файл: {file_name}"
                 eventlet.spawn_n(self._send_ntfy_notification, message_title, message_body)
+
+    def on_api_command(self, command, data):
+        if command == "send_test_notification":
+            self._logger.info("Отправка тестового уведомления...")
+            eventlet.spawn_n(self._send_ntfy_notification, "Тестовое уведомление", "Это тестовое уведомление от плагина OctoPrint-Ntfy.")
 
     def _send_ntfy_notification(self, title, message):
         server_url = self._settings.get(["server_url"]).rstrip('/')
@@ -118,7 +125,7 @@ class NtfyPlugin(StartupPlugin,
 __plugin_name__ = "Ntfy Notification"
 __plugin_version__ = "1.0.0"
 __plugin_description__ = "A plugin to send notifications to a ntfy server."
-__plugin_author__ = "Tip-Topych"
+__plugin_author__ = "Padla"
 __plugin_pythoncompat__ = ">=3,<4"
 
 def __plugin_load__():
