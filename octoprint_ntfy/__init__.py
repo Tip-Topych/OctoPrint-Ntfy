@@ -6,8 +6,7 @@ from octoprint.plugin import (
     StartupPlugin,
     SettingsPlugin,
     EventHandlerPlugin,
-    TemplatePlugin,
-    SoftwareUpdatePlugin
+    TemplatePlugin
 )
 import requests
 import eventlet
@@ -17,8 +16,7 @@ from octoprint.events import Events
 class NtfyPlugin(StartupPlugin,
                  SettingsPlugin,
                  EventHandlerPlugin,
-                 TemplatePlugin,
-                 SoftwareUpdatePlugin):
+                 TemplatePlugin):
 
     def on_after_startup(self):
         self._logger.info("Ntfy Plugin загружен!")
@@ -110,14 +108,17 @@ class NtfyPlugin(StartupPlugin,
                 displayName="Ntfy Plugin",
                 displayVersion=self._plugin_version,
                 type="github_release",
-                user="Padla",
+                user="Tip-Topych",
                 repo="OctoPrint-Ntfy",
                 current=self._plugin_version,
-                pip="https://github.com/Padla/OctoPrint-Ntfy/archive/{target_version}.zip"
+                pip="https://github.com/Tip-Topych/OctoPrint-Ntfy/archive/{target_version}.zip"
             )
         )
 
 __plugin_name__ = "Ntfy Notification"
+__plugin_version__ = "1.0.0"
+__plugin_description__ = "A plugin to send notifications to a ntfy server."
+__plugin_author__ = "Tip-Topych"
 __plugin_pythoncompat__ = ">=3,<4"
 
 def __plugin_load__():
