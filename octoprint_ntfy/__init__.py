@@ -38,7 +38,7 @@ class NtfyPlugin(StartupPlugin,
 
     def get_template_configs(self):
         return [
-            dict(type="settings", template="ntfy_settings.jinja2", custom_bindings=True)
+            dict(type="settings", template="ntfy_settings.jinja2", custom_bindings=False)
         ]
 
     def on_event(self, event, payload):

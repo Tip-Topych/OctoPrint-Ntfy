@@ -1,101 +1,92 @@
-<div id="settings_ntfy">
-    <form class="form-horizontal">
-        <fieldset>
-            <legend>Настройки Ntfy</legend>
+<form class="form-horizontal">
+    <fieldset>
+        <legend>Настройки Ntfy</legend>
 
-            <div class="control-group">
-                <label class="control-label">Ntfy Server URL</label>
-                <div class="controls">
-                    <input type="text" class="input-block-level" data-bind="value: settings.plugins.ntfy.server_url">
-                    <span class="help-block">Например: https://ntfy.sh или ваш self-hosted адрес</span>
-                </div>
+        <div class="control-group">
+            <label class="control-label">Ntfy Server URL</label>
+            <div class="controls">
+                <input type="text" class="input-block-level" data-bind="value: settings.plugins.ntfy.server_url">
+                <span class="help-block">Например: https://ntfy.sh или ваш self-hosted адрес</span>
             </div>
+        </div>
 
-            <div class="control-group">
-                <label class="control-label">Topic (Топик)</label>
-                <div class="controls">
-                    <input type="text" class="input-block-level" data-bind="value: settings.plugins.ntfy.topic">
-                </div>
+        <div class="control-group">
+            <label class="control-label">Topic (Топик)</label>
+            <div class="controls">
+                <input type="text" class="input-block-level" data-bind="value: settings.plugins.ntfy.topic">
             </div>
+        </div>
 
-            <div class="control-group">
-                <label class="control-label">Access Token (Опционально)</label>
-                <div class="controls">
-                    <input type="password" class="input-block-level" data-bind="value: settings.plugins.ntfy.access_token">
-                    <span class="help-block">Требуется, если ваш топик защищен.</span>
-                </div>
+        <div class="control-group">
+            <label class="control-label">Access Token (Опционально)</label>
+            <div class="controls">
+                <input type="password" class="input-block-level" data-bind="value: settings.plugins.ntfy.access_token">
+                <span class="help-block">Требуется, если ваш топик защищен.</span>
             </div>
+        </div>
 
-            <div class="control-group">
-                <div class="controls">
-                    <label class="checkbox">
-                        <input type="checkbox" data-bind="checked: settings.plugins.ntfy.include_snapshot"> Прикреплять снимок с камеры
-                    </label>
-                </div>
+        <div class="control-group">
+            <div class="controls">
+                <label class="checkbox">
+                    <input type="checkbox" data-bind="checked: settings.plugins.ntfy.include_snapshot"> Прикреплять снимок с камеры
+                </label>
             </div>
+        </div>
 
-            <legend>События</legend>
-            <div class="control-group">
-                <div class="controls">
-                    <label class="checkbox">
-                        <input type="checkbox" data-bind="checked: settings.plugins.ntfy.event_print_started"> Печать началась
-                    </label>
-                    <label class="checkbox">
-                        <input type="checkbox" data-bind="checked: settings.plugins.ntfy.event_print_done"> Печать завершена
-                    </label>
-                    <label class="checkbox">
-                        <input type="checkbox" data-bind="checked: settings.plugins.ntfy.event_print_failed"> Ошибка печати
-                    </label>
-                    <label class="checkbox">
-                        <input type="checkbox" data-bind="checked: settings.plugins.ntfy.event_print_cancelled"> Печать отменена
-                    </label>
-                </div>
+        <legend>События</legend>
+        <div class="control-group">
+            <div class="controls">
+                <label class="checkbox">
+                    <input type="checkbox" data-bind="checked: settings.plugins.ntfy.event_print_started"> Печать началась
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" data-bind="checked: settings.plugins.ntfy.event_print_done"> Печать завершена
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" data-bind="checked: settings.plugins.ntfy.event_print_failed"> Ошибка печати
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" data-bind="checked: settings.plugins.ntfy.event_print_cancelled"> Печать отменена
+                </label>
             </div>
-        </fieldset>
+        </div>
+    </fieldset>
 
-        <fieldset>
-            <legend>Тестирование</legend>
-            <div class="control-group">
-                <div class="controls">
-                    <button class="btn btn-primary" data-bind="click: sendTestNotification">Отправить тестовое уведомление</button>
-                </div>
+    <fieldset>
+        <legend>Тестирование</legend>
+        <div class="control-group">
+            <div class="controls">
+                <button id="ntfy_test_button" class="btn btn-primary">Отправить тестовое уведомление</button>
             </div>
-        </fieldset>
-    </form>
-</div>
+        </div>
+    </fieldset>
+</form>
 
 <script type="text/javascript">
     $(function() {
-        function NtfySettingsViewModel(parameters) {
-            var self = this;
-            console.log("NtfySettingsViewModel constructing...");
+        // Используем делегированный обработчик событий.
+        // Он слушает клики на #settings_dialog, но реагирует только если клик был на #ntfy_test_button.
+        // Это гарантирует, что обработчик сработает, даже если кнопка была добавлена в DOM позже.
+        $("#settings_dialog").on("click", "#ntfy_test_button", function(e) {
+            e.preventDefault(); // Предотвращаем стандартное поведение кнопки
 
-            self.settings = parameters[0];
+            console.log("Test button clicked!"); // Для отладки
 
-            self.sendTestNotification = function() {
-                console.log("Button clicked!");
-                OctoPrint.simpleApiCommand("ntfy", "send_test_notification", {})
-                    .done(function() {
-                        new PNotify({
-                            title: 'Успех',
-                            text: 'Команда на отправку тестового уведомления отправлена.',
-                            type: 'success'
-                        });
-                    })
-                    .fail(function() {
-                        new PNotify({
-                            title: 'Ошибка',
-                            text: 'Не удалось отправить команду. Проверьте лог octoprint.log.',
-                            type: 'error'
-                        });
+            OctoPrint.simpleApiCommand("ntfy", "send_test_notification", {})
+                .done(function() {
+                    new PNotify({
+                        title: 'Успех',
+                        text: 'Команда на отправку тестового уведомления отправлена.',
+                        type: 'success'
                     });
-            };
-        }
-
-        OCTOPRINT_VIEWMODELS.push({
-            construct: NtfySettingsViewModel,
-            dependencies: [ "settingsViewModel" ],
-            elements: [ "#settings_ntfy" ] // Используем наш новый, уникальный ID
+                })
+                .fail(function() {
+                    new PNotify({
+                        title: 'Ошибка',
+                        text: 'Не удалось отправить команду. Проверьте лог octoprint.log.',
+                        type: 'error'
+                    });
+                });
         });
     });
 </script>
